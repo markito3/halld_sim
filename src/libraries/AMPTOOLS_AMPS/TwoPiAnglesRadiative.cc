@@ -64,12 +64,46 @@ TwoPiAnglesRadiative::TwoPiAnglesRadiative( const vector< string >& args ) :
 }
 
 complex< GDouble >
-TwoPiAnglesRadiative::calcAmplitude( GDouble** pKin ) const {
+TwoPiAnglesRadiative::calcAmplitude( GDouble** pKin, GDouble* userVars ) const {
 
-    TLorentzVector beam   ( pKin[0][1], pKin[0][2], pKin[0][3], pKin[0][0] ); 
-    TLorentzVector recoil ( pKin[1][1], pKin[1][2], pKin[1][3], pKin[1][0] ); 
-    TLorentzVector p1     ( pKin[2][1], pKin[2][2], pKin[2][3], pKin[2][0] ); 
-    TLorentzVector p2     ( pKin[3][1], pKin[3][2], pKin[3][3], pKin[3][0] ); 
+  GDouble sinSqTheta = userVars[kSinSqTheta];
+  GDouble sin2Theta = userVars[kSin2Theta];
+  GDouble cosTheta = userVars[kCosTheta];
+  GDouble phi = userVars[kPhi];
+  GDouble bigPhi = userVars[kBigPhi];
+  GDouble Pgamma = userVars[kPgamma];
+ 
+/*
+  // vector meson production from K. Schilling et. al.
+  GDouble W = 1.0 - 0.5*(1. - rho000)*sinSqTheta - rho000*cosTheta*cosTheta + sqrt(2.)*rho100*sin2Theta*cos(phi) + rho1m10*sinSqTheta*cos(2.*phi);
+
+  W -= Pgamma*cos(2.*Phi) * (2.*rho111 + (rho001-rho111)*sinSqTheta + sqrt(2.)*rho101*sin2Theta*cos(phi) + rho1m11*sinSqTheta*cos(2.*phi));
+
+  W += Pgamma*sin(2.*Phi) * (sqrt(2.)*rho102*sin2Theta*sin(phi) + rho1m12*sinSqTheta*sin(2.*phi));
+
+  */
+
+  double rho110 = 0.5*(1.-rho000);
+  
+  GDouble W = 1.0 - sinSqTheta * rho110 - cosTheta*cosTheta*rho000 + sinSqTheta*cos(2.*phi)*rho1m10 + sqrt(2.)*rho100*sin2Theta*cos(phi);
+  
+  W -= Pgamma*cos(2.*bigPhi) * (2.*rho111 + sinSqTheta*(rho001-rho111) + sinSqTheta*cos(2.*phi)*rho1m11 + sqrt(2.)*rho101*sin2Theta*cos(phi));
+  
+  W += Pgamma*sin(2.*bigPhi) * (rho1m12*sinSqTheta*sin(2.*phi) + sqrt(2.)*rho102*sin2Theta*sin(phi));
+  
+  W *= 3./(8.*PI);
+  
+  return complex< GDouble > ( sqrt(fabs(W)) );
+}
+  
+
+void
+TwoPiAnglesRadiative::calcUserVars( GDouble** pKin, GDouble* userVars ) const {
+
+    TLorentzVector beam   ( pKin[0][1], pKin[0][2], pKin[0][3], pKin[0][0] );
+    TLorentzVector recoil ( pKin[1][1], pKin[1][2], pKin[1][3], pKin[1][0] );
+    TLorentzVector p1     ( pKin[2][1], pKin[2][2], pKin[2][3], pKin[2][0] );
+    TLorentzVector p2     ( pKin[3][1], pKin[3][2], pKin[3][3], pKin[3][0] );
     TLorentzVector target (0.0, 0.0, 0.0, 0.938272);
 
     TLorentzVector locOmegaP4 = p1 + p2;
@@ -164,21 +198,15 @@ TwoPiAnglesRadiative::calcAmplitude( GDouble** pKin ) const {
     if(locSinPhi < 0.0)
        locPhi *= -1.0;
 
-    GDouble cosTheta = locCosTheta;
-    GDouble sinSqTheta = sin(locTheta)*sin(locTheta);
-    GDouble sin2Theta = sin(2.*locTheta);
+    userVars[kCosTheta]   = locCosTheta;
+    userVars[kSinSqTheta] = sin(locTheta)*sin(locTheta);
+    userVars[kSin2Theta]  = sin(2.*locTheta);
+    userVars[kPhi] = locPhi;
+    userVars[kBigPhi] = locPHI;
 
-    GDouble phi = locPhi;
-    GDouble Phi = locPHI;
-
-    //GDouble psi = phi - Phi;
-    //if(psi < -1*PI) psi += 2*PI;
-    //if(psi > PI) psi -= 2*PI;
-
-    // vector meson production from K. Schilling et. al.
     GDouble Pgamma;
-    if(polFraction > 0.) { // for fitting with constant polarization 
-	    Pgamma = polFraction;
+    if(polFraction > 0.) { // for fitting with constant polarization
+      Pgamma = polFraction;
     }
     else{
        int bin = polFrac_vs_E->GetXaxis()->FindBin(pKin[0][0]);
@@ -187,25 +215,17 @@ TwoPiAnglesRadiative::calcAmplitude( GDouble** pKin ) const {
        }
        else Pgamma = polFrac_vs_E->GetBinContent(bin);
     }
-/*
-    GDouble W = 1.0 - 0.5*(1. - rho000)*sinSqTheta - rho000*cosTheta*cosTheta + sqrt(2.)*rho100*sin2Theta*cos(phi) + rho1m10*sinSqTheta*cos(2.*phi);
-
-    W -= Pgamma*cos(2.*Phi) * (2.*rho111 + (rho001-rho111)*sinSqTheta + sqrt(2.)*rho101*sin2Theta*cos(phi) + rho1m11*sinSqTheta*cos(2.*phi));
-
-    W += Pgamma*sin(2.*Phi) * (sqrt(2.)*rho102*sin2Theta*sin(phi) + rho1m12*sinSqTheta*sin(2.*phi));
-
-    */
-
-   double rho110 = 0.5*(1.-rho000);
-
-   GDouble W = 1.0 - sinSqTheta * rho110 - cosTheta*cosTheta*rho000 + sinSqTheta*cos(2.*phi)*rho1m10 + sqrt(2.)*rho100*sin2Theta*cos(phi);
-
-   W -= Pgamma*cos(2.*Phi) * (2.*rho111 + sinSqTheta*(rho001-rho111) + sinSqTheta*cos(2.*phi)*rho1m11 + sqrt(2.)*rho101*sin2Theta*cos(phi));
-
-   W += Pgamma*sin(2.*Phi) * (rho1m12*sinSqTheta*sin(2.*phi) + sqrt(2.)*rho102*sin2Theta*sin(phi));
-
-    W *= 3./(8.*PI);
-
-    return complex< GDouble > ( sqrt(fabs(W)) );
+    
+    userVars[kPgamma] = Pgamma;
 }
 
+#ifdef GPU_ACCELERATION
+void
+TwoPiAnglesRadiative::launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const {
+
+  GPUTwoPiAnglesRadiative_exec( dimGrid, dimBlock, GPU_AMP_ARGS,
+                                rho000, rho100, rho1m10,
+                                rho111, rho001, rho101,
+                                rho1m11, rho102, rho1m12 );
+}
+#endif

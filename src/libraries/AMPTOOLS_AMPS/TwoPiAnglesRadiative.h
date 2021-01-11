@@ -15,8 +15,9 @@
 #ifdef GPU_ACCELERATION
 void
 GPUTwoPiAnglesRadiative_exec( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
-                     int j, int m, GDouble bigTheta, GDouble refFact );
-
+                              GDouble rho000, GDouble rho100, GDouble rho1m10,
+                              GDouble rho111, GDouble rho001, GDouble rho101,
+                              GDouble rho1m11, GDouble rho102, GDouble rho1m12 );
 #endif // GPU_ACCELERATION
 
 using std::complex;
@@ -27,15 +28,24 @@ class Kinematics;
 class TwoPiAnglesRadiative : public UserAmplitude< TwoPiAnglesRadiative >
 {
     
-public:
-	
-	TwoPiAnglesRadiative() : UserAmplitude< TwoPiAnglesRadiative >() { };
-	TwoPiAnglesRadiative( const vector< string >& args );
-	
-	string name() const { return "TwoPiAnglesRadiative"; }
+ public:
+   
+  TwoPiAnglesRadiative() : UserAmplitude< TwoPiAnglesRadiative >() { };
+  TwoPiAnglesRadiative( const vector< string >& args );
+  
+  enum UserVars { kPgamma = 0, kCosTheta, kSinSqTheta, kSin2Theta,
+                  kBigPhi, kPhi, kNumUserVars };
+  unsigned int numUserVars() const { return kNumUserVars; }
+  
+  string name() const { return "TwoPiAnglesRadiative"; }
     
-	complex< GDouble > calcAmplitude( GDouble** pKin ) const;
-	
+  complex< GDouble > calcAmplitude( GDouble** pKin, GDouble* userVars ) const;
+  void calcUserVars( GDouble** pKin, GDouble* userVars ) const;
+
+  // we can calcualte everything we need from userVars block so allow
+  // the framework to purge the four-vectors
+  bool needsUserVarsOnly() const { return true; }
+  
 #ifdef GPU_ACCELERATION
   
   void launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const;
