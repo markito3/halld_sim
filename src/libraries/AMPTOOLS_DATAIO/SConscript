@@ -11,6 +11,7 @@ if os.getenv('AMPTOOLS', 'nada')!='nada':
 	env = env.Clone()
 
 	sbms.AddAmpTools(env)
+	sbms.AddHDDM(env)
 	sbms.AddROOT(env)
 	sbms.library(env)
 

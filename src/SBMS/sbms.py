@@ -584,9 +584,24 @@ def AddHDDS(env):
 # HDDM
 ##################################
 def AddHDDM(env):
-	env.AppendUnique(LIBS = 'HDDM')
-	env.PrependUnique(OPTIONAL_PLUGIN_LIBS = 'HDDM')
-	Add_xstream(env)
+	libhddm_home = os.getenv('LIBHDDM_HOME')
+	if(libhddm_home != None) :
+		LIBHDDM_CPPPATH = "%s/include" % (libhddm_home)
+		LIBHDDM_LIBPATH = "%s/lib" % (libhddm_home)
+		LIBHDDM_LIBS = "HDDM"
+		env.AppendUnique(CPPPATH = LIBHDDM_CPPPATH)
+		env.AppendUnique(LIBPATH = LIBHDDM_LIBPATH)
+		env.AppendUnique(LIBS    = [LIBHDDM_LIBS])
+		env.PrependUnique(OPTIONAL_PLUGIN_LIBS = 'HDDM')
+	hddm_home = os.getenv('HDDM_HOME')
+	if(hddm_home != None) :
+		HDDM_CPPPATH = "%s/include" % (hddm_home)
+		HDDM_LIBPATH = "%s/lib" % (hddm_home)
+		HDDM_LIBS = ['xstream', 'tirpc', 'bz2', 'z']
+		env.AppendUnique(CPPPATH = HDDM_CPPPATH)
+		env.AppendUnique(LIBPATH = HDDM_LIBPATH)
+		env.AppendUnique(LIBS    = HDDM_LIBS)
+		env.AppendUnique(CPPPATH = ['/usr/include/tirpc'])
 	Add_HDF5(env)
 
 ##################################
