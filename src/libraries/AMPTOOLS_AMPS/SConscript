@@ -15,6 +15,7 @@ if os.getenv('AMPTOOLS', 'nada')!='nada':
 
 	sbms.AddUtilities(env)
 	sbms.AddAmpTools(env)
+	sbms.AddHDDM(env)
 	sbms.AddROOT(env)
 	sbms.library(env)
 
