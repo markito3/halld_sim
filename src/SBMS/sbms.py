@@ -579,6 +579,23 @@ def AddHDDS(env):
 	env.AppendUnique(CPPPATH = ["%s/%s/src" % (hdds_home, env['OSNAME'])])
 	env.AppendUnique(LIBPATH = ["%s/%s/lib" % (hdds_home, env['OSNAME'])])
 
+##################################
+# DDAQ
+##################################
+def AddDDAQ(env):
+	ddaq_home = os.getenv('DDAQ_HOME', 'dummy_ddaq_home')
+	env.AppendUnique(CPPPATH = ["%s/include" % ddaq_home])
+	env.AppendUnique(LIBPATH = ["%s/lib" % ddaq_home])
+	env.Append(LIBS = 'DDAQ')
+
+##################################
+# hd_interface
+##################################
+def Addhd_interface(env):
+	hd_interface_home = os.getenv('HD_INTERFACE_HOME', 'dummy_hd_interface_home')
+	env.AppendUnique(CPPPATH = ["%s/include" % hd_interface_home])
+	env.AppendUnique(LIBPATH = ["%s/lib" % hd_interface_home])
+	env.Append(LIBS = 'HD_INTERFACE')
 
 ##################################
 # HDDM
@@ -619,7 +636,7 @@ def AddMySQL(env):
 
 
 ##################################
-# DANA
+# AddREONPaths
 ##################################
 def AddRECONPaths(env):
 	halld_recon_home = os.getenv('HALLD_RECON_HOME', 'halld_recon')
@@ -631,11 +648,22 @@ def AddRECONPaths(env):
                 AddCompileFlags(env, "-DSMEARDIRC")
 
 ##################################
+# Xerces
+##################################
+def AddXERCES(env):
+	xercescroot = os.getenv('XERCESCROOT', 'xerces')
+	XERCES_CPPPATH = "%s/include" % (xercescroot)
+	XERCES_LIBPATH = "%s/lib" % (xercescroot)
+	XERCES_LIBS = "xerces-c"
+	env.AppendUnique(CPPPATH = XERCES_CPPPATH)
+	env.AppendUnique(LIBPATH = XERCES_LIBPATH)
+	env.AppendUnique(LIBS    = XERCES_LIBS)
+
+##################################
 # DANA
 ##################################
 def AddDANA(env):
 	AddRECONPaths(env)
-	AddHDDM(env)
 	AddROOT(env)
 	AddJANA(env)
 	AddCCDB(env)
@@ -645,14 +673,19 @@ def AddDANA(env):
 	AddEVIO(env)
 	AddET(env)
 	AddMySQL(env)   # needed for EventStore
-	DANA_LIBS  = "DANA ANALYSIS KINFITTER PID TAGGER TRACKING START_COUNTER"
-	DANA_LIBS += " CERE DIRC CDC TRIGGER PAIR_SPECTROMETER RF"
-	DANA_LIBS += " FDC TOF BCAL FCAL CCAL TPOL HDGEOMETRY TTAB FMWPC TAC"
-	DANA_LIBS += " DAQ JANA EVENTSTORE TRD"
-	DANA_LIBS += " expat"
-	env.PrependUnique(LIBS = DANA_LIBS.split())
-	env.Append(LIBS = 'DANA')
-	env.PrependUnique(OPTIONAL_PLUGIN_LIBS = DANA_LIBS.split())
+	AddDDAQ(env)
+	Addhd_interface(env)
+	AddHDDM(env)
+	#DANA_LIBS  = "DANA ANALYSIS KINFITTER PID TAGGER TRACKING START_COUNTER"
+	#DANA_LIBS += " CERE DIRC CDC TRIGGER PAIR_SPECTROMETER RF"
+	#DANA_LIBS += " FDC TOF TPOL HDGEOMETRY TTAB FMWPC TAC"
+	#DANA_LIBS += " DAQ JANA EVENTSTORE TRD"
+	#DANA_LIBS += " expat"
+	#env.PrependUnique(LIBS = DANA_LIBS.split())
+	env.Append(LIBS = 'DDAQ')
+	env.Append(LIBS = 'HD_INTERFACE')
+	AddXERCES(env)
+	#env.PrependUnique(OPTIONAL_PLUGIN_LIBS = DANA_LIBS.split())
 
 ##################################
 # xstream
@@ -815,18 +848,6 @@ def AddCMSG(env):
 		env.AppendUnique(LIBPATH = ['%s/lib' % cmsgroot])
 		env.AppendUnique(LIBS=['cmsgxx', 'cmsg', 'cmsgRegex'])
 
-
-##################################
-# Xerces
-##################################
-def AddXERCES(env):
-	xercescroot = os.getenv('XERCESCROOT', 'xerces')
-	XERCES_CPPPATH = "%s/include" % (xercescroot)
-	XERCES_LIBPATH = "%s/lib" % (xercescroot)
-	XERCES_LIBS = "xerces-c"
-	env.AppendUnique(CPPPATH = XERCES_CPPPATH)
-	env.AppendUnique(LIBPATH = XERCES_LIBPATH)
-	env.AppendUnique(LIBS    = XERCES_LIBS)
 
 ##################################
 # CERNLIB
