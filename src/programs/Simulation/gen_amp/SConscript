@@ -14,6 +14,7 @@ if os.getenv('AMPTOOLS', 'nada')!='nada':
    env.AppendUnique(LIBS = AMPTOOLS_LIBS.split())
    
    sbms.AddUtilities(env)
+   sbms.Addhd_interface(env)
    sbms.AddHDDM(env)
    sbms.AddROOT(env)
    sbms.AddAmpTools(env) 

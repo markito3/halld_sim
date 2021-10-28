@@ -580,15 +580,6 @@ def AddHDDS(env):
 	env.AppendUnique(LIBPATH = ["%s/%s/lib" % (hdds_home, env['OSNAME'])])
 
 ##################################
-# DDAQ
-##################################
-def AddDDAQ(env):
-	ddaq_home = os.getenv('DDAQ_HOME', 'dummy_ddaq_home')
-	env.AppendUnique(CPPPATH = ["%s/include" % ddaq_home])
-	env.AppendUnique(LIBPATH = ["%s/lib" % ddaq_home])
-	env.Append(LIBS = 'DDAQ')
-
-##################################
 # hd_interface
 ##################################
 def Addhd_interface(env):
@@ -601,15 +592,6 @@ def Addhd_interface(env):
 # HDDM
 ##################################
 def AddHDDM(env):
-	libhddm_home = os.getenv('LIBHDDM_HOME')
-	if(libhddm_home != None) :
-		LIBHDDM_CPPPATH = "%s/include" % (libhddm_home)
-		LIBHDDM_LIBPATH = "%s/lib" % (libhddm_home)
-		LIBHDDM_LIBS = "HDDM"
-		env.AppendUnique(CPPPATH = LIBHDDM_CPPPATH)
-		env.AppendUnique(LIBPATH = LIBHDDM_LIBPATH)
-		env.AppendUnique(LIBS    = [LIBHDDM_LIBS])
-		env.PrependUnique(OPTIONAL_PLUGIN_LIBS = 'HDDM')
 	hddm_home = os.getenv('HDDM_HOME')
 	if(hddm_home != None) :
 		HDDM_CPPPATH = "%s/include" % (hddm_home)
@@ -673,19 +655,9 @@ def AddDANA(env):
 	AddEVIO(env)
 	AddET(env)
 	AddMySQL(env)   # needed for EventStore
-	AddDDAQ(env)
 	Addhd_interface(env)
 	AddHDDM(env)
-	#DANA_LIBS  = "DANA ANALYSIS KINFITTER PID TAGGER TRACKING START_COUNTER"
-	#DANA_LIBS += " CERE DIRC CDC TRIGGER PAIR_SPECTROMETER RF"
-	#DANA_LIBS += " FDC TOF TPOL HDGEOMETRY TTAB FMWPC TAC"
-	#DANA_LIBS += " DAQ JANA EVENTSTORE TRD"
-	#DANA_LIBS += " expat"
-	#env.PrependUnique(LIBS = DANA_LIBS.split())
-	env.Append(LIBS = 'DDAQ')
-	env.Append(LIBS = 'HD_INTERFACE')
 	AddXERCES(env)
-	#env.PrependUnique(OPTIONAL_PLUGIN_LIBS = DANA_LIBS.split())
 
 ##################################
 # xstream

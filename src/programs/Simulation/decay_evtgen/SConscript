@@ -11,6 +11,7 @@ env = env.Clone()
 
 #sbms.AddUtilities(env)
 sbms.AddROOT(env)
+sbms.Addhd_interface(env)
 sbms.AddHDDM(env)
 sbms.AddEvtGen(env)
 sbms.executable(env)

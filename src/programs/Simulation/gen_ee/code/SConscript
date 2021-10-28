@@ -10,6 +10,7 @@ env = env.Clone()
 AMPTOOLS_LIBS = "UTILITIES"
 env.AppendUnique(LIBS = AMPTOOLS_LIBS.split())
 	
+sbms.Addhd_interface(env)
 sbms.AddHDDM(env)
 sbms.AddROOT(env)
 sbms.AddUtilities(env)

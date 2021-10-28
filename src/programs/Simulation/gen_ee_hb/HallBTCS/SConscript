@@ -7,6 +7,7 @@ Import('*')
 
 env = env.Clone()
 	
+sbms.Addhd_interface(env)
 sbms.AddHDDM(env)
 sbms.AddROOT(env)
 sbms.executable(env, 'gen_ee_hb')

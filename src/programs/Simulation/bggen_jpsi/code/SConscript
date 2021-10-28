@@ -26,6 +26,7 @@ else:
 
 	sbms.AddCERNLIB(env)
 	sbms.AddHDDM(env)
+	sbms.Addhd_interface(env)
 
 	# By default SConstruct adds 'include' which turns into
 	# a path in variant directory that doesn't exist. gcc 4.8
